@@ -756,20 +756,50 @@ document.querySelectorAll(".btn-avatar-select").forEach(btn => {
     if (gender === "female") {
       avatarFemaleImg.classList.add("active");
       avatarMaleImg.classList.remove("active");
-      if (femaleVideo) femaleVideo.classList.add("active");
-      if (maleVideo) maleVideo.classList.remove("active");
-      if (femaleBackdrop) femaleBackdrop.classList.add("active");
-      if (maleBackdrop) maleBackdrop.classList.remove("active");
+      
+      if (femaleVideo) {
+        femaleVideo.classList.add("active");
+        femaleVideo.play().catch(err => console.log("Female video play failed:", err));
+      }
+      if (femaleBackdrop) {
+        femaleBackdrop.classList.add("active");
+        femaleBackdrop.play().catch(err => console.log("Female backdrop play failed:", err));
+      }
+      
+      if (maleVideo) {
+        maleVideo.classList.remove("active");
+        maleVideo.pause();
+      }
+      if (maleBackdrop) {
+        maleBackdrop.classList.remove("active");
+        maleBackdrop.pause();
+      }
+      
       activeNameEl.textContent = "이지아 뷰티 컨설턴트";
       showSystemBubble("이지아 컨설턴트로 파트너가 전환되었습니다.");
       appendAIBubble("안녕하세요! 이지아 컨설턴트입니다. 만나서 반갑습니다!");
     } else {
       avatarFemaleImg.classList.remove("active");
       avatarMaleImg.classList.add("active");
-      if (femaleVideo) femaleVideo.classList.remove("active");
-      if (maleVideo) maleVideo.classList.add("active");
-      if (femaleBackdrop) femaleBackdrop.classList.remove("active");
-      if (maleBackdrop) maleBackdrop.classList.add("active");
+      
+      if (maleVideo) {
+        maleVideo.classList.add("active");
+        maleVideo.play().catch(err => console.log("Male video play failed:", err));
+      }
+      if (maleBackdrop) {
+        maleBackdrop.classList.add("active");
+        maleBackdrop.play().catch(err => console.log("Male backdrop play failed:", err));
+      }
+      
+      if (femaleVideo) {
+        femaleVideo.classList.remove("active");
+        femaleVideo.pause();
+      }
+      if (femaleBackdrop) {
+        femaleBackdrop.classList.remove("active");
+        femaleBackdrop.pause();
+      }
+      
       activeNameEl.textContent = "민준우 뷰티 컨설턴트";
       showSystemBubble("민준우 컨설턴트로 파트너가 전환되었습니다.");
       appendAIBubble("안녕하세요! 민준우 컨설턴트입니다. 스킨케어 고민을 저에게 말씀해 주세요!");
@@ -1718,6 +1748,12 @@ function playPrintSoundEffect() {
 document.getElementById("btn-start-kiosk").addEventListener("click", () => {
   document.getElementById("welcome-view").classList.add("hidden");
   document.getElementById("workspace-view").classList.remove("hidden");
+  
+  // Explicitly trigger playing on active videos to bypass browser autoplay blocks
+  const activeVideos = document.querySelectorAll(".avatar-video.active, .avatar-video-backdrop.active");
+  activeVideos.forEach(v => {
+    v.play().catch(err => console.log("Video auto-play triggered after user interaction:", err));
+  });
   
   // Ensure that Lucide icons in the workspace view are correctly generated once it becomes visible
   if (typeof lucide !== 'undefined' && lucide.createIcons) {
