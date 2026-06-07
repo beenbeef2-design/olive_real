@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>올리브영 AI 뷰티 휴먼 — 가상 뷰티 컨설턴트</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="shortcut icon" type="image/png" href="favicon.png">
+  <meta name="description" content="실제 매장 직원처럼 대화하며 피부 진단, 제품 추천, 성분 분석, 매장 위치 안내를 지원하는 올리브영 AI 가상 뷰티 카운셀러 서비스">
+  
+  <!-- Google Fonts (Noto Sans KR, Montserrat for styling, Orbitron for futuristic scanning readouts) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Core Stylesheet -->
+  <link rel="stylesheet" href="style.css?v=34">
+</head>
+<body>
+
+  <!-- ======================================================== -->
+  <!-- PHYSICAL KIOSK FRAME WRAPPER                             -->
+  <!-- ======================================================== -->
+  <div class="kiosk-hardware-frame">
+    <!-- Kiosk Top Camera Lens Indicator -->
+    <div class="kiosk-camera-hardware">
+      <div class="camera-lens"></div>
+      <div class="sensor-dot"></div>
+    </div>
+    
+    <!-- Kiosk Vertical Monitor Screen (9:16 Aspect Ratio) -->
+    <main class="kiosk-screen-container" id="main-kiosk-screen">
+      <!-- ======================================================== -->
+      <!-- 1. WELCOME SPLASH SCREEN                                 -->
+      <!-- ======================================================== -->
+      <div class="kiosk-welcome-view" id="welcome-view">
+        <div class="welcome-header">
+          <div class="oy-logo-box centered">
+            <span class="oy-logo-olive">OLIVE</span>
+            <span class="oy-logo-young">YOUNG</span>
+            <span class="oy-badge-beta">AI LAB</span>
+          </div>
+          <span class="welcome-tagline">VIRTUAL BEAUTY CONSULTANT</span>
+        </div>
+        
+        <div class="welcome-body">
+          <div class="welcome-character-container">
+            <div class="character-circle-halo"></div>
+            <img src="assets/character.png" alt="올리브영 가상 뷰티 연구소" class="welcome-character-img">
+          </div>
+          
+          <h1 class="welcome-title">올리브영 가상 뷰티 연구소</h1>
+          <p class="welcome-subtitle">
+            스킨케어 고민을 1대1 전문 상담원과 이야기하듯<br>
+            편안하게 대화로 분석받고 처방받으세요.
+          </p>
+          
+          <div class="welcome-languages">
+            <button class="btn-welcome-lang active" data-lang="ko">
+              <i data-lucide="globe"></i>
+              <span>한국어</span>
+            </button>
+            <button class="btn-welcome-lang" data-lang="en">
+              <i data-lucide="globe"></i>
+              <span>English</span>
+            </button>
+            <button class="btn-welcome-lang" data-lang="zh">
+              <i data-lucide="globe"></i>
+              <span>中文</span>
+            </button>
+            <button class="btn-welcome-lang" data-lang="ja">
+              <i data-lucide="globe"></i>
+              <span>日本語</span>
+            </button>
+          </div>
+        </div>
+        
+        <div class="welcome-footer">
+          <button class="btn-start-kiosk" id="btn-start-kiosk">
+            <span>가상 뷰티 컨설팅 시작</span>
+            <i data-lucide="sparkles"></i>
+          </button>
+        </div>
+      </div>
+      
+      <!-- ======================================================== -->
+      <!-- 2. MAIN KIOSK WORKSPACE (Initially Hidden)               -->
+      <!-- ======================================================== -->
+      <div class="kiosk-workspace-view hidden" id="workspace-view">
+        
+        <!-- SCREEN HEADER -->
+        <header class="kiosk-header">
+          <div class="header-left">
+            <!-- Olive Young Branding Logo -->
+            <div class="oy-logo-box">
+              <span class="oy-logo-olive">OLIVE</span>
+              <span class="oy-logo-young">YOUNG</span>
+              <span class="oy-badge-beta">AI Human</span>
+            </div>
+          </div>
+          <div class="header-right">
+            <!-- Time and Status Icons -->
+            <div class="status-clock" id="kiosk-clock">13:25</div>
+            <div class="status-indicators" style="display: none !important;">
+              <i data-lucide="wifi" class="status-icon active" id="network-status"></i>
+              <i data-lucide="volume-2" class="status-icon" id="volume-toggle" title="음성 안내 켜기/끄기"></i>
+            </div>
+          </div>
+        </header>
+
+        <!-- SCREEN MAIN BODY -->
+        <section class="kiosk-content-body">
+          
+          <!-- 1. AI BEAUTY HUMAN SECTION -->
+          <article class="ai-avatar-container">
+            <!-- Background Cyber Glow Pattern -->
+            <div class="cyber-grid-background"></div>
+            
+            <!-- State Status Overlays -->
+            <div class="ai-status-badge">
+              <span class="pulse-dot"></span>
+              <span id="ai-status-text">대기 중 (ONLINE)</span>
+            </div>
+
+            <!-- Avatar Select Toggle (Female / Male) -->
+            <div class="avatar-gender-selector" title="상담원 전환">
+              <button class="btn-avatar-select active" data-gender="female">
+                <i data-lucide="user"></i>
+                <span>이지아</span>
+              </button>
+              <button class="btn-avatar-select" data-gender="male">
+                <i data-lucide="user"></i>
+                <span>민준우</span>
+              </button>
+            </div>
+
+            <!-- AI Human Avatar Video Wrapper -->
+            <div class="ai-human-wrapper">
+              <!-- Glow background circle behind avatar -->
+              <div class="avatar-halo"></div>
+              
+              <!-- Blurred backdrop videos for female and male -->
+              <video src="assets/avatar_female.mp4" autoplay loop muted playsinline class="avatar-video-backdrop active" id="avatar-female-backdrop"></video>
+              <video src="assets/avatar_male.mp4" autoplay loop muted playsinline class="avatar-video-backdrop" id="avatar-male-backdrop"></video>
+
+              <!-- Dynamic Avatar Videos (Female & Male) -->
+              <video src="assets/avatar_female.mp4" autoplay loop muted playsinline class="avatar-video active" id="avatar-female-video"></video>
+              <video src="assets/avatar_male.mp4" autoplay loop muted playsinline class="avatar-video" id="avatar-male-video"></video>
+              <img src="assets/avatar_female.png" alt="AI 뷰티 컨설턴트 이지아" class="avatar-img" id="avatar-female-img" style="display: none !important;">
+              <img src="assets/avatar_male.png" alt="AI 뷰티 컨설턴트 민준우" class="avatar-img" id="avatar-male-img" style="display: none !important;">
+              
+              <!-- Video Overlay/Filter for digital look -->
+              <div class="scanline-overlay"></div>
+              
+              <!-- Facial scanner holographic targets overlay when skin diagnosing -->
+              <div class="hologram-face-bracket" id="hologram-bracket">
+                <div class="bracket-corner tl"></div>
+                <div class="bracket-corner tr"></div>
+                <div class="bracket-corner bl"></div>
+                <div class="bracket-corner br"></div>
+                <div class="scan-laser-line"></div>
+                <div class="scan-telemetry-text" id="telemetry-readout">FACE DETECTED</div>
+              </div>
+            </div>
+
+            <!-- Interactive Voice Wave Equalizer -->
+            <div class="voice-wave-container" id="voice-waves">
+              <span class="wave-bar bar-1"></span>
+              <span class="wave-bar bar-2"></span>
+              <span class="wave-bar bar-3"></span>
+              <span class="wave-bar bar-4"></span>
+              <span class="wave-bar bar-5"></span>
+              <span class="wave-bar bar-6"></span>
+              <span class="wave-bar bar-7"></span>
+              <span class="wave-bar bar-8"></span>
+            </div>
+
+          </article>
+
+          <!-- 2. NATURAL DIALOGUE HISTORY CONTAINER -->
+          <article class="chat-dialogue-container" id="chat-scroller">
+            
+            <div class="dialogue-timeline" id="dialogue-timeline-list">
+              <!-- Prepopulated Greeting -->
+              <div class="chat-message ai-msg">
+                <div class="message-sender">
+                  <div class="sender-info">
+                    <i data-lucide="sparkles" class="sender-icon"></i>
+                    <span class="sender-name" id="active-consultant-name">이지아 뷰티 컨설턴트</span>
+                  </div>
+                  <button class="btn-bubble-speak" data-text="안녕하세요! 올리브영 가상 뷰티 컨설턴트입니다. 평소 피부 타입이나 갖고 계신 화장품 관련 고민을 자유롭게 말씀해 주세요!" aria-label="답변 음성 듣기" title="음성 듣기">
+                    <i data-lucide="volume-2"></i>
+                    <span>음성 듣기</span>
+                  </button>
+                </div>
+                <div class="message-bubble">
+                  안녕하세요! 올리브영 가상 뷰티 컨설턴트입니다. 평소 피부 타입이나 갖고 계신 화장품 관련 고민을 자유롭게 말씀해 주세요!
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- 3. QUICK SUGGESTION TAGS -->
+          <article class="quick-suggestions-panel">
+            <div class="scroll-fade-left"></div>
+            <div class="suggestions-wrapper" id="suggestions-container">
+              <button class="btn-suggest-tag" data-query="남자인데 스킨케어를 처음 시작하려고 해요.">
+                <i data-lucide="sparkles" class="tag-icon"></i>
+                <span>남자 첫 스킨케어 루틴</span>
+              </button>
+              <button class="btn-suggest-tag" data-query="피부가 붉어지고 여드름이 자주 나요. 진정 제품 추천해줘.">
+                <i data-lucide="shield-alert" class="tag-icon"></i>
+                <span>트러블 진정 케어</span>
+              </button>
+              <button class="btn-suggest-tag" data-query="요즘 건조해서 화장이 뜨고 얼굴이 당겨요.">
+                <i data-lucide="droplet" class="tag-icon"></i>
+                <span>속건조/수분 충전</span>
+              </button>
+              <button class="btn-suggest-tag" data-query="페녹시에탄올 성분은 피부에 많이 해롭나요?">
+                <i data-lucide="microscope" class="tag-icon"></i>
+                <span>EWG 주의 성분 분석</span>
+              </button>
+            </div>
+            <div class="scroll-fade-right"></div>
+          </article>
+
+        </section>
+
+        <!-- SCREEN FOOTER: UTILITIES & SYSTEM INPUTS -->
+        <footer class="kiosk-footer">
+          
+          <!-- Utility Dashboard Toolbar (Quick Tools) -->
+          <div class="dashboard-toolbar">
+            <button class="btn-toolbar-tool" id="tool-diagnose" aria-label="피부 진단 실행">
+              <div class="tool-icon-box bg-purple-glow">
+                <i data-lucide="scan-face"></i>
+              </div>
+              <span>피부 진단</span>
+            </button>
+            
+            <button class="btn-toolbar-tool" id="tool-map" aria-label="매장 지도 열기">
+              <div class="tool-icon-box bg-green-glow">
+                <i data-lucide="map"></i>
+              </div>
+              <span>매장 지도</span>
+            </button>
+            
+            <button class="btn-toolbar-tool" id="tool-ingredients" aria-label="성분 분석기 실행">
+              <div class="tool-icon-box bg-blue-glow">
+                <i data-lucide="test-tube-2"></i>
+              </div>
+              <span>성분 분석</span>
+            </button>
+            
+            <button class="btn-toolbar-tool" id="tool-receipt" aria-label="상담 카드 출력">
+              <div class="tool-icon-box bg-orange-glow">
+                <i data-lucide="printer"></i>
+              </div>
+              <span>위치 영수증</span>
+            </button>
+          </div>
+
+          <!-- Chat Input Bar & Mic Controls -->
+          <div class="control-input-group">
+            <!-- Voice Mode Toggle button -->
+            <button class="btn-voice-toggle" id="voice-mode-btn" title="음성 대화 모드">
+              <i data-lucide="mic" class="mic-active-icon"></i>
+              <i data-lucide="mic-off" class="mic-inactive-icon hidden"></i>
+            </button>
+
+            <!-- Text input field for keyboard queries -->
+            <div class="text-input-wrapper">
+              <input type="text" id="customer-query-input" placeholder="상담원에게 질문을 하거나 음성 버튼을 누르세요..." autocomplete="off">
+              <button class="btn-send-message" id="send-query-btn" aria-label="전송">
+                <i data-lucide="arrow-up"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Mic status bar prompt -->
+          <div class="voice-status-bar hidden" id="voice-speech-prompt">
+            <span class="speaking-dot"></span>
+            <span id="speech-prompt-text">고객님의 목소리를 듣고 있어요... 말씀해 주세요.</span>
+          </div>
+        </footer>
+
+      </div>
+
+    </main>
+    
+
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL WINDOWS (INTERACTIVE MODULES)                      -->
+  <!-- ======================================================== -->
+
+  <!-- 1. SKIN DIAGNOSTIC MODAL -->
+  <div class="modal-overlay" id="modal-diagnostic">
+    <div class="modal-card diagnostic-vertical-card">
+      <header class="modal-header-bar">
+        <h3><i data-lucide="scan-face" class="header-icon purple-text"></i> AI 안면 피부 정밀 진단</h3>
+        <button class="btn-close-modal" data-close="modal-diagnostic">&times;</button>
+      </header>
+      
+      <div class="modal-body-content diagnostic-body-vertical">
+
+        <!-- Live Webcam Frame Container — 세로형으로 크게 -->
+        <div class="webcam-scanner-box vertical">
+          <video id="webcam-stream" autoplay playsinline muted class="webcam-feed-source"></video>
+          
+          <!-- Virtual holographic mask overlay -->
+          <div class="scanner-mask-overlay" id="webcam-scan-overlay">
+            <div class="scanner-laser-line"></div>
+            <div class="facial-target-ring"></div>
+            <div class="scanner-state-readout" id="scanner-state-readout">READY TO SCAN</div>
+          </div>
+          
+          <!-- Fallback mockup scan screen -->
+          <div class="webcam-fallback-screen" id="webcam-fallback">
+            <div class="pulse-radar"></div>
+            <i data-lucide="camera-off" class="fallback-camera-icon"></i>
+            <p>진단 카메라를 활성화하는 중입니다...</p>
+            <span class="fallback-desc">카메라가 없는 경우 가상 진단 모드로 대체 구동됩니다.</span>
+          </div>
+
+          <!-- 안내 텍스트 카메라 위에 오버레이 -->
+          <div class="scan-guide-overlay" id="scan-initial-controls">
+            <p class="scan-instructions">정면을 향해 주시고,<br>턱과 이마를 가이드라인에 맞춰주세요.</p>
+          </div>
+        </div>
+
+        <!-- 진행 바 (스캔 중) -->
+        <div class="scan-progress-bar-container hidden" id="scan-progress-box">
+          <div class="progress-labels">
+            <span id="scan-task-name">이마/볼 유수분도 분석 중...</span>
+            <span id="scan-percentage">35%</span>
+          </div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="scan-progress-fill"></div>
+          </div>
+        </div>
+
+        <!-- 시작 버튼 — 하단 고정 -->
+        <div class="scan-start-btn-area" id="scan-start-btn-wrap">
+          <button class="btn-primary-action btn-olive-green" id="btn-start-scan">
+            <i data-lucide="aperture"></i>
+            <span>피부 측정 시작하기</span>
+          </button>
+        </div>
+
+        <!-- Diagnostics Result Panel -->
+        <div class="diagnose-result-panel hidden" id="scan-results-box">
+          <h4 class="result-title-main">피부 정밀 진단 리포트</h4>
+          
+          <div class="result-scores-grid">
+            <div class="score-radial-item">
+              <div class="radial-ring-box">
+                <svg class="radial-svg" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="40" class="radial-bg-track"></circle>
+                  <circle cx="50" cy="50" r="40" class="radial-fill-track purple" id="score-ring-total"></circle>
+                </svg>
+                <div class="radial-center-text">
+                  <span class="score-val" id="result-score-val">82</span>
+                  <span class="score-unit">점</span>
+                </div>
+              </div>
+              <span class="radial-label">종합 점수</span>
+            </div>
+            
+            <div class="skin-metrics-list">
+              <div class="metric-row-item">
+                <div class="metric-info">
+                  <span>수분 함량</span>
+                  <span class="metric-val" id="metric-hydro-val">42% (조금 건조)</span>
+                </div>
+                <div class="metric-bar-track">
+                  <div class="metric-bar-fill hydro" id="metric-hydro-bar"></div>
+                </div>
+              </div>
+              <div class="metric-row-item">
+                <div class="metric-info">
+                  <span>유분 분비</span>
+                  <span class="metric-val" id="metric-sebum-val">18% (건성)</span>
+                </div>
+                <div class="metric-bar-track">
+                  <div class="metric-bar-fill sebum" id="metric-sebum-bar"></div>
+                </div>
+              </div>
+              <div class="metric-row-item">
+                <div class="metric-info">
+                  <span>민감도 / 홍조</span>
+                  <span class="metric-val" id="metric-trouble-val">52% (보통)</span>
+                </div>
+                <div class="metric-bar-track">
+                  <div class="metric-bar-fill trouble" id="metric-trouble-bar"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="skin-type-tag-box">
+            <span>진단 결과:</span>
+            <strong class="skin-type-highlight" id="skin-type-conclusion">수분 부족성 건성 피부 (수부지/건성)</strong>
+          </div>
+
+          <div class="diagnostic-recommendations">
+            <h5><i data-lucide="check-circle" class="check-icon"></i> 맞춤 진단 추천 제품</h5>
+            <div class="diagnostic-products-row" id="diagnose-recs-container"></div>
+          </div>
+          
+          <button class="btn-secondary-action mt-2" id="btn-diagnose-send-chat">
+            <i data-lucide="message-square-plus"></i>
+            <span>상담사에게 피부 진단 데이터 전송</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. STORE MAP MODAL -->
+  <div class="modal-overlay" id="modal-map">
+    <div class="modal-card map-modal-card">
+      <header class="modal-header-bar">
+        <h3><i data-lucide="map" class="header-icon green-text"></i> 올리브영 실시간 진열대 위치 안내</h3>
+        <button class="btn-close-modal" data-close="modal-map">&times;</button>
+      </header>
+      
+      <div class="modal-body-content map-body-flex">
+        
+        <!-- Left: Interactive Map Container -->
+        <div class="store-map-viewbox">
+          <svg viewBox="0 0 800 600" class="svg-store-map" id="oliveyoung-svg-map">
+            <!-- Grid Background for design -->
+            <defs>
+              <pattern id="map-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255, 255, 255, 0.03)" stroke-width="1"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#map-grid)" />
+            
+            <!-- Store Boundary Outer Walls -->
+            <rect x="20" y="20" width="760" height="560" rx="15" fill="none" stroke="rgba(255, 255, 255, 0.15)" stroke-width="3" />
+            
+            <!-- Entrance -->
+            <line x1="350" y1="580" x2="450" y2="580" stroke="#FF5E15" stroke-width="5" stroke-dasharray="10 5" />
+            <text x="400" y="595" class="map-label-txt font-bold orange-text" text-anchor="middle">매장 입구</text>
+            
+            <!-- ZONES AND SHELVES -->
+            <!-- TROUBLE CARE ZONE (A 구역) -->
+            <g class="map-shelf-group" id="zone-A">
+              <rect x="50" y="80" width="180" height="120" rx="8" class="zone-rect bg-zone-a" />
+              <rect x="70" y="110" width="140" height="20" rx="3" class="shelf-rect" />
+              <rect x="70" y="150" width="140" height="20" rx="3" class="shelf-rect" />
+              <text x="140" y="102" class="map-label-txt zone-title">더마 트러블 케어 존 [A]</text>
+              <text x="140" y="125" class="map-label-txt shelf-sub-label">A-1 진열대 (시카/티트리)</text>
+              <text x="140" y="165" class="map-label-txt shelf-sub-label">A-2 진열대 (여드름 케어)</text>
+            </g>
+
+            <!-- FUNCTIONAL CARE ZONE (B 구역) -->
+            <g class="map-shelf-group" id="zone-B">
+              <rect x="570" y="80" width="180" height="120" rx="8" class="zone-rect bg-zone-b" />
+              <rect x="590" y="110" width="140" height="20" rx="3" class="shelf-rect" />
+              <rect x="590" y="150" width="140" height="20" rx="3" class="shelf-rect" />
+              <text x="660" y="102" class="map-label-txt zone-title">탄력 / 미백 기능성 존 [B]</text>
+              <text x="660" y="125" class="map-label-txt shelf-sub-label">B-3 진열대 (콜라겐/탄력)</text>
+              <text x="660" y="165" class="map-label-txt shelf-sub-label">B-4 진열대 (비타민C/미백)</text>
+            </g>
+
+            <!-- SKINCARE BASIC ZONE (C 구역) -->
+            <g class="map-shelf-group" id="zone-C">
+              <rect x="50" y="320" width="220" height="140" rx="8" class="zone-rect bg-zone-c" />
+              <rect x="70" y="350" width="180" height="20" rx="3" class="shelf-rect" />
+              <rect x="70" y="390" width="180" height="20" rx="3" class="shelf-rect" />
+              <rect x="70" y="430" width="180" height="20" rx="3" class="shelf-rect" />
+              <text x="160" y="342" class="map-label-txt zone-title">스킨케어 에센셜 존 [C]</text>
+              <text x="160" y="365" class="map-label-txt shelf-sub-label">C-5 진열대 (남성 스킨케어)</text>
+              <text x="160" y="405" class="map-label-txt shelf-sub-label">C-6 진열대 (수분크림/에멀전)</text>
+              <text x="160" y="445" class="map-label-txt shelf-sub-label">C-7 진열대 (토너/미스트)</text>
+            </g>
+
+            <!-- MAKEUP ZONE (D 구역) -->
+            <g class="map-shelf-group" id="zone-D">
+              <rect x="530" y="320" width="220" height="140" rx="8" class="zone-rect bg-zone-d" />
+              <rect x="550" y="350" width="180" height="20" rx="3" class="shelf-rect" />
+              <rect x="550" y="400" width="180" height="20" rx="3" class="shelf-rect" />
+              <text x="640" y="342" class="map-label-txt zone-title">메이크업 / 포인트 색조 [D]</text>
+              <text x="640" y="365" class="map-label-txt shelf-sub-label">D-8 진열대 (쿠션/파운데이션)</text>
+              <text x="640" y="415" class="map-label-txt shelf-sub-label">D-9 진열대 (립스틱/아이섀도)</text>
+            </g>
+
+            <!-- COUNTER / CHECKOUT (결제 카운터) -->
+            <g class="map-shelf-group" id="zone-Counter">
+              <rect x="470" y="500" width="160" height="60" rx="8" class="zone-rect bg-zone-counter" />
+              <text x="550" y="535" class="map-label-txt zone-title font-bold">결제 카운터 (CASHIER)</text>
+            </g>
+
+            <!-- KIOSK - YOU ARE HERE (키오스크 부스 현위치) -->
+            <g class="kiosk-location-node" id="kiosk-node">
+              <circle cx="400" cy="480" r="16" fill="rgba(155, 196, 56, 0.4)" class="kiosk-pulse-circle" />
+              <circle cx="400" cy="480" r="8" fill="#9BC438" />
+              <text x="400" y="455" class="map-label-txt font-bold active-glow" text-anchor="middle">현위치 (AI 부스)</text>
+            </g>
+
+            <!-- DYNAMIC PATH NAVIGATION (glowing overlay line) -->
+            <path d="" id="map-route-line" fill="none" stroke="#FF5E15" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 6" class="route-navigation-path" />
+            
+            <!-- Target Highlight Ring -->
+            <circle cx="0" cy="0" r="22" id="map-target-ring" fill="none" stroke="#FF5E15" stroke-width="4" class="target-highlight-ring hidden" />
+          </svg>
+        </div>
+
+        <!-- Right: Shelf Direction Details & Search -->
+        <div class="map-sidebar-details">
+          <div class="location-direction-card">
+            <h4><i data-lucide="navigation-2" class="nav-icon animate-bounce"></i> 찾아가시는 길 길잡이</h4>
+            <p id="path-desc-text">상담을 통해 추천받은 제품을 클릭하거나, 제품을 선택하면 현재 위치에서 해당 상품이 진열된 매대까지 동선이 지도에 실시간으로 표시됩니다.</p>
+            
+            <div class="direction-indicator-info hidden" id="direction-info-box">
+              <div class="destination-badge" id="direction-zone-badge">C구역 5번 진열대</div>
+              <p class="destination-detail-text" id="direction-shelf-detail">남성 스킨케어 코너에 위치한 제품입니다. AI 부스 바로 뒤편 왼쪽 통로를 지나 C구역 정면 5번 매대로 이동해 주세요.</p>
+            </div>
+          </div>
+
+          <!-- Quick Location Finder Buttons -->
+          <div class="quick-locations-guide">
+            <h5>매장 주요 진열대 바로 찾기</h5>
+            <div class="shelf-buttons-grid">
+              <button class="btn-shelf-locate" data-zone="C" data-shelf="C-5" data-coords="160,360" data-desc="남성 스킨케어 라인이 정렬된 C구역 5번 매대입니다. 수분크림, 스킨, 에센스 등이 배치되어 있습니다.">
+                <span>C-5 남성 스킨케어</span>
+              </button>
+              <button class="btn-shelf-locate" data-zone="C" data-shelf="C-6" data-coords="160,400" data-desc="국내외 인기 수분크림 및 유수분 밸런싱 로션이 위치한 C구역 6번 메인 수분케어 진열대입니다.">
+                <span>C-6 수분크림/로션</span>
+              </button>
+              <button class="btn-shelf-locate" data-zone="A" data-shelf="A-2" data-coords="140,160" data-desc="여드름, 트러블 진정 및 Cica 성분의 스팟 패치와 연고류가 모여있는 더마코스메틱 A구역 2번 매대입니다.">
+                <span>A-2 트러블/시카 케어</span>
+              </button>
+              <button class="btn-shelf-locate" data-zone="B" data-shelf="B-4" data-coords="660,160" data-desc="비타민 C 세럼, 나이아신아마이드 미백 앰플 등이 진열된 B구역 4번 미백/기능성 스킨케어 매대입니다.">
+                <span>B-4 비타민C/미백 존</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. INGREDIENT ANALYZER MODAL -->
+  <div class="modal-overlay" id="modal-ingredients">
+    <div class="modal-card">
+      <header class="modal-header-bar">
+        <h3><i data-lucide="test-tube-2" class="header-icon blue-text"></i> 올리브영 스마트 성분 분석 연구소</h3>
+        <button class="btn-close-modal" data-close="modal-ingredients">&times;</button>
+      </header>
+      
+      <div class="modal-body-content">
+        <p class="section-desc">민감성 피부를 위해 주의해야 할 성분이 포함되어 있는지, EWG 그린 등급의 성분 구성인지 실시간 데이터베이스를 바탕으로 꼼꼼하게 점검합니다.</p>
+        
+        <div class="ingredient-search-wrapper">
+          <!-- 검색창 (버튼 없이 입력만) -->
+          <div class="ingredient-search-box">
+            <i data-lucide="search" class="search-ico"></i>
+            <input type="text" id="ingredient-search-input" placeholder="제품명 또는 성분명을 입력하세요...">
+          </div>
+
+          <!-- 추천 검색 태그 -->
+          <div class="search-suggests-tags">
+            <span>추천 검색:</span>
+            <button class="btn-suggest-search" data-value="피지오겔 DMT 페이셜 크림">피지오겔 크림</button>
+            <button class="btn-suggest-search" data-value="닥터지 레드 블레미쉬 클리어 수딩 크림">닥터지 수딩크림</button>
+            <button class="btn-suggest-search" data-value="라운드랩 독도 토너">독도 토너</button>
+            <button class="btn-suggest-search" data-value="페녹시에탄올">페녹시에탄올 성분</button>
+          </div>
+
+          <!-- 성분 분석 버튼 (검색창 아래 별도 배치) -->
+          <button class="btn-primary-action btn-olive-green" id="btn-ingredient-search">
+            <i data-lucide="test-tube-2"></i>
+            <span>성분 분석하기</span>
+          </button>
+        </div>
+
+        <!-- Analysis Result Section -->
+        <div class="ingredient-result-layout hidden" id="ingredient-result-box">
+          <div class="result-product-meta">
+            <h4 id="analyzed-product-name">닥터지 레드 블레미쉬 클리어 수딩 크림</h4>
+            <span class="product-category-badge">수분 크림 | 민감성 추천</span>
+          </div>
+
+          <div class="safety-summary-cards">
+            <!-- EWG Green Count -->
+            <div class="safety-summary-card green">
+              <span class="count-val" id="ewg-green-count">18</span>
+              <span class="label-val">EWG 그린 (안전)</span>
+            </div>
+            <!-- EWG Yellow Count -->
+            <div class="safety-summary-card yellow">
+              <span class="count-val" id="ewg-yellow-count">2</span>
+              <span class="label-val">EWG 옐로우 (보통)</span>
+            </div>
+            <!-- EWG Red Count -->
+            <div class="safety-summary-card red">
+              <span class="count-val" id="ewg-red-count">0</span>
+              <span class="label-val">주의 필요 (위험)</span>
+            </div>
+          </div>
+
+          <!-- Skin Type Compatibility Alerts -->
+          <div class="compatibility-alerts-box">
+            <h5><i data-lucide="info" class="info-icon"></i> 피부 타입별 성분 적합성 안내</h5>
+            <div class="compat-rows">
+              <div class="compat-row">
+                <span class="skin-type-label dry">건성 피부</span>
+                <span class="compat-status good"><i data-lucide="check" class="check"></i> 매우 추천 (글리세린, 부틸렌글라이콜 등 고보습 성분 다량 함유)</span>
+              </div>
+              <div class="compat-row">
+                <span class="skin-type-label oily">지성 피부</span>
+                <span class="compat-status warning"><i data-lucide="alert-triangle" class="warn"></i> 보통 (모공을 막을 우려가 있는 에스테르계 오일 미미함)</span>
+              </div>
+              <div class="compat-row">
+                <span class="skin-type-label sensitive">민감성 피부</span>
+                <span class="compat-status good"><i data-lucide="check" class="check"></i> 매우 추천 (에탄올, 인공 향료, 색소 배제 처방)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detailed Ingredient List Table -->
+          <div class="detailed-ingredients-table-box">
+            <h5>전성분 세부 등급표</h5>
+            <table class="ingredients-table">
+              <thead>
+                <tr>
+                  <th>성분명 (English/Korean)</th>
+                  <th style="width: 100px; text-align: center;">EWG 등급</th>
+                  <th>주요 배합 목적 및 안전성 정보</th>
+                </tr>
+              </thead>
+              <tbody id="ingredients-table-body">
+                <!-- Will be dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. PRINTED RECEIPT / SMART TICKET MODAL -->
+  <div class="modal-overlay" id="modal-receipt">
+    <div class="modal-card receipt-modal-card">
+      <header class="modal-header-bar">
+        <h3><i data-lucide="printer" class="header-icon orange-text"></i> 올리브영 스마트 뷰티 영수증</h3>
+        <button class="btn-close-modal" data-close="modal-receipt">&times;</button>
+      </header>
+      
+      <div class="modal-body-content receipt-flex-layout">
+        <p class="section-desc text-center">진단 결과 및 추천 상품 목록, 매장 내 상세 진열 위치가 적힌 스마트 영수증을 출력합니다. 모바일 올리브영 앱과 연동할 수 있는 바코드도 포함되어 있습니다.</p>
+        
+        <!-- Interactive Thermal Receipt Object -->
+        <div class="thermal-receipt-container" id="thermal-receipt">
+          <!-- Torn Paper Top Effect -->
+          <div class="receipt-tear-top"></div>
+          
+          <div class="receipt-inner-body">
+            <header class="receipt-header">
+              <span class="receipt-brand-title">OLIVE YOUNG</span>
+              <span class="receipt-booth-title">AI BEAUTY HUMAN BOOTH #1</span>
+              <p class="receipt-meta-line" id="receipt-date-time">2026.06.04 13:25:03 | NO. 49023</p>
+            </header>
+            
+            <div class="receipt-divider">------------------------------------------</div>
+            
+            <div class="receipt-section-block">
+              <span class="receipt-section-title">[ 고객 피부 진단 결과 ]</span>
+              <div class="receipt-double-row">
+                <span>종합 피부 점수:</span>
+                <strong id="receipt-skin-score">82점</strong>
+              </div>
+              <div class="receipt-double-row">
+                <span>판정 피부 타입:</span>
+                <strong id="receipt-skin-type">수분 부족형 건성 (수부지)</strong>
+              </div>
+            </div>
+            
+            <div class="receipt-divider">------------------------------------------</div>
+
+            <div class="receipt-section-block">
+              <span class="receipt-section-title">[ 추천 제품 및 진열 매대 동선 ]</span>
+              
+              <div class="receipt-products-list" id="receipt-items-list">
+                <!-- Dynamically populated recommended items -->
+                <div class="receipt-item-row">
+                  <div class="receipt-item-name">1. [수분크림] 닥터지 레드 블레미쉬 수딩 크림</div>
+                  <div class="receipt-item-pos">▶ C구역 5번 매대 (스킨케어 에센셜 존)</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="receipt-divider">------------------------------------------</div>
+
+            <div class="receipt-section-block receipt-barcode-block">
+              <span class="barcode-desc">이 티켓을 카운터에 제시하거나 모바일 앱으로 스캔하면 해당 제품의 추가 10% 혜택 및 구매 적립이 연동됩니다.</span>
+              <!-- Simulated Barcode -->
+              <div class="simulated-barcode">
+                <div class="barcode-line w-1"></div>
+                <div class="barcode-line w-2"></div>
+                <div class="barcode-line w-1"></div>
+                <div class="barcode-line w-3"></div>
+                <div class="barcode-line w-1"></div>
+                <div class="barcode-line w-2"></div>
+                <div class="barcode-line w-4"></div>
+                <div class="barcode-line w-1"></div>
+                <div class="barcode-line w-2"></div>
+                <div class="barcode-line w-3"></div>
+                <div class="barcode-line w-1"></div>
+                <div class="barcode-line w-2"></div>
+                <div class="barcode-line w-1"></div>
+              </div>
+              <span class="barcode-numbers">* OY-AI-BEAUTY-202606 *</span>
+            </div>
+
+            <footer class="receipt-footer">
+              <p>감사합니다. 올리브영에서 당신만의 건강한 아름다움을 만나보세요!</p>
+              <span class="receipt-oliveyoung-url">www.oliveyoung.co.kr</span>
+            </footer>
+          </div>
+          
+          <!-- Torn Paper Bottom Effect -->
+          <div class="receipt-tear-bottom"></div>
+        </div>
+
+        <!-- Action Print Button -->
+        <button class="btn-primary-action bg-orange-glow w-full mt-2" id="btn-trigger-print">
+          <i data-lucide="printer"></i>
+          <span>실물 영수증 티켓 출력하기 (Simulate Print)</span>
+        </button>
+        
+        <!-- Printing Sound Audios (Web Audio Synthesized / Alert) -->
+        <div class="print-feedback-banner hidden" id="print-success-feedback">
+          <i data-lucide="check-circle" class="check-success animate-bounce"></i>
+          <div>
+            <strong>영수증 티켓이 부스 하단 프린터로 출력되었습니다!</strong>
+            <p>매장 하단 토출구에서 티켓을 가져가신 뒤 매대를 찾아가 보시기 바랍니다.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio elements for feedback -->
+  <audio id="sound-print" src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==" preload="auto"></audio>
+
+  <script src="app.js?v=20"></script>
+</body>
+</html>

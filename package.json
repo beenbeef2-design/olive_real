@@ -1,0 +1,11 @@
+{
+  "name": "beauty-booth",
+  "version": "1.0.0",
+  "description": "AI 뷰티 컨설턴트 키오스크",
+  "scripts": {
+    "start": "http-server . -p ${PORT:-8080} --cors"
+  },
+  "dependencies": {
+    "http-server": "^14.1.1"
+  }
+}
